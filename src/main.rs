@@ -147,17 +147,6 @@ fn main() {
         all_points.push(point);
     }
 
-    for &point in icosohedron_points.iter().filter(|p| p.z > -0.4) {
-        let colour = 0x00FFFF;
-        let material = three::material::Phong {
-            color: colour,
-            glossiness: 80.0,
-        };
-        let mesh = win.factory.mesh(geometry.clone(), material.clone());
-        mesh.set_position(point);
-        win.scene.add(&mesh);
-    }
-
     let faces = [
         [0, 1, 2],
         [0, 2, 3],
@@ -195,34 +184,12 @@ fn main() {
         for &point in mid_points.iter() {
             all_points.push(point);
         }
-
-        for &point in mid_points.iter().filter(|p| p.z > -0.4) {
-            let colour = 0x0000FF;
-            /*
-            let material = three::material::Phong {
-                color: colour,
-                glossiness: 80.0,
-            };
-            let mesh = win.factory.mesh(geometry.clone(), material.clone());
-            mesh.set_position(point);
-            win.scene.add(&mesh);
-            
-            let colour = 0xFF00FF;
-            */
-            let material = three::material::Phong {
-                color: colour,
-                glossiness: 80.0,
-            };
-            let mesh = win.factory.mesh(geometry.clone(), material.clone());
-            mesh.set_position(normalize(point));
-            win.scene.add(&mesh);
-        }
     }
 
     println!("{}", all_points.iter().count());
 
-    for &point in all_points.iter() {
-        let colour = 0xFFFF00;
+    for &point in all_points.iter().filter(|p| p.z > -0.4) {
+        let colour = 0x1010FF;
         let material = three::material::Phong {
             color: colour,
             glossiness: 80.0,

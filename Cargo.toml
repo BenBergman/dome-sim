@@ -1,0 +1,10 @@
+[package]
+name = "dome-sim"
+version = "0.1.0"
+authors = ["Ben Bergman <ben@benbergman.ca>"]
+edition = "2018"
+
+[dependencies]
+three = "0.3"
+cgmath = { version = "0.15", features = ["mint"] }
+mint = "0.5"

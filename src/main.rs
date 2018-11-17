@@ -4,17 +4,6 @@ extern crate three;
 
 use three::Object;
 
-//use cgmath::prelude::*;
-//use std::f32::consts::PHI;
-
-//const PHI: f32 = 1.6180339887498948482;
-
-//const A: f32 = 0.525731112119133606;
-//const B: f32 = 0.850650808352039932;
-
-//const A: f32 = 1.0;
-//const B: f32 = PHI;
-
 const LAT: f32 = 26.57;
 const LONG: f32 = 36.0;
 
@@ -87,14 +76,9 @@ fn main() {
     let mesh = win.factory.mesh(geometry.clone(), material);
     win.scene.add(&mesh);
 
-    /*
-    let points = [
-        [-A, 0.0, B], [A, 0.0, B], [-A, 0.0, -B], [A, 0.0, -B],
-        [0.0, -B, A], [0.0, B, A], [0.0, -B, -A], [0.0, B, -A],
-        [-B, A, 0.0], [B, A, 0.0], [-B, -A, 0.0], [B, -A, 0.0]];
-        */
+    let mut all_points = vec!();
 
-    let points: [mint::Point3<f32>; 12] = [
+    let icosohedron_points: [mint::Point3<f32>; 12] = [
         [get_x(90.0, 0.0), get_y(90.0, 0.0), get_z(90.0, 0.0)].into(),
         [
             get_x(LAT, 0.0 * LONG),
@@ -159,7 +143,11 @@ fn main() {
         [get_x(-90.0, 0.0), get_y(-90.0, 0.0), get_z(-90.0, 0.0)].into(),
     ];
 
-    for &point in points.iter().filter(|p| p.z > -0.4) {
+    for &point in icosohedron_points.iter() {
+        all_points.push(point);
+    }
+
+    for &point in icosohedron_points.iter().filter(|p| p.z > -0.4) {
         let colour = 0x00FFFF;
         let material = three::material::Phong {
             color: colour,
@@ -195,14 +183,18 @@ fn main() {
 
     for face in faces.iter() {
         let mid_points = [
-            find_mid(points[face[0]], points[face[1]], 3.0),
-            find_mid(points[face[1]], points[face[0]], 3.0),
-            find_mid(points[face[1]], points[face[2]], 3.0),
-            find_mid(points[face[2]], points[face[1]], 3.0),
-            find_mid(points[face[0]], points[face[2]], 3.0),
-            find_mid(points[face[2]], points[face[0]], 3.0),
-            find_center(points[face[0]], points[face[1]], points[face[2]]),
+            find_mid(icosohedron_points[face[0]], icosohedron_points[face[1]], 3.0),
+            find_mid(icosohedron_points[face[1]], icosohedron_points[face[0]], 3.0),
+            find_mid(icosohedron_points[face[1]], icosohedron_points[face[2]], 3.0),
+            find_mid(icosohedron_points[face[2]], icosohedron_points[face[1]], 3.0),
+            find_mid(icosohedron_points[face[0]], icosohedron_points[face[2]], 3.0),
+            find_mid(icosohedron_points[face[2]], icosohedron_points[face[0]], 3.0),
+            find_center(icosohedron_points[face[0]], icosohedron_points[face[1]], icosohedron_points[face[2]]),
         ];
+
+        for &point in mid_points.iter() {
+            all_points.push(point);
+        }
 
         for &point in mid_points.iter().filter(|p| p.z > -0.4) {
             let colour = 0x0000FF;
@@ -225,6 +217,19 @@ fn main() {
             mesh.set_position(normalize(point));
             win.scene.add(&mesh);
         }
+    }
+
+    println!("{}", all_points.iter().count());
+
+    for &point in all_points.iter() {
+        let colour = 0xFFFF00;
+        let material = three::material::Phong {
+            color: colour,
+            glossiness: 80.0,
+        };
+        let mesh = win.factory.mesh(geometry.clone(), material.clone());
+        mesh.set_position(normalize(point));
+        win.scene.add(&mesh);
     }
 
     let timer = three::Timer::new();

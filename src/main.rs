@@ -185,8 +185,6 @@ fn main() {
         all_points.insert(vec!(p1, p2, p3), point);
     }
 
-    println!("{}", all_points.iter().filter(|(_, p)| p.z > -0.4).count());
-
     for (_, &point) in all_points.iter().filter(|(_, p)| p.z > -0.4) {
         let colour = 0x1010FF;
         let material = three::material::Phong {
@@ -196,6 +194,8 @@ fn main() {
         let mesh = win.factory.mesh(geometry.clone(), material.clone());
         mesh.set_position(normalize(point));
         win.scene.add(&mesh);
+
+        println!("[{}, {}, {}],", point.x, point.y, point.z);
     }
 
     let timer = three::Timer::new();

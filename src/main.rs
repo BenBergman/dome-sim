@@ -2,6 +2,7 @@ extern crate cgmath;
 extern crate mint;
 extern crate three;
 
+use std::collections::HashMap;
 use three::Object;
 
 const LAT: f32 = 26.57;
@@ -76,7 +77,7 @@ fn main() {
     let mesh = win.factory.mesh(geometry.clone(), material);
     win.scene.add(&mesh);
 
-    let mut all_points = vec!();
+    let mut all_points = HashMap::new();
 
     let icosohedron_points: [mint::Point3<f32>; 12] = [
         [get_x(90.0, 0.0), get_y(90.0, 0.0), get_z(90.0, 0.0)].into(),
@@ -143,8 +144,8 @@ fn main() {
         [get_x(-90.0, 0.0), get_y(-90.0, 0.0), get_z(-90.0, 0.0)].into(),
     ];
 
-    for &point in icosohedron_points.iter() {
-        all_points.push(point);
+    for (i, &point) in icosohedron_points.iter().enumerate() {
+        all_points.insert(vec!(i), point);
     }
 
     let faces = [
@@ -171,24 +172,22 @@ fn main() {
     ];
 
     for face in faces.iter() {
-        let mid_points = [
-            find_mid(icosohedron_points[face[0]], icosohedron_points[face[1]], 3.0),
-            find_mid(icosohedron_points[face[1]], icosohedron_points[face[0]], 3.0),
-            find_mid(icosohedron_points[face[1]], icosohedron_points[face[2]], 3.0),
-            find_mid(icosohedron_points[face[2]], icosohedron_points[face[1]], 3.0),
-            find_mid(icosohedron_points[face[0]], icosohedron_points[face[2]], 3.0),
-            find_mid(icosohedron_points[face[2]], icosohedron_points[face[0]], 3.0),
-            find_center(icosohedron_points[face[0]], icosohedron_points[face[1]], icosohedron_points[face[2]]),
-        ];
+        let p1 = face[0];
+        let p2 = face[1];
+        let p3 = face[2];
 
-        for &point in mid_points.iter() {
-            all_points.push(point);
+        for set in [vec!(p1, p2), vec!(p2, p1), vec!(p2, p3), vec!(p3, p2), vec!(p3, p1), vec!(p1, p3)].iter() {
+            let point = find_mid(icosohedron_points[set[0]], icosohedron_points[set[1]], 3.0);
+            all_points.insert(set.to_vec(), point);
         }
+
+        let point = find_center(icosohedron_points[p1], icosohedron_points[p2], icosohedron_points[p3]);
+        all_points.insert(vec!(p1, p2, p3), point);
     }
 
-    println!("{}", all_points.iter().count());
+    println!("{}", all_points.iter().filter(|(_, p)| p.z > -0.4).count());
 
-    for &point in all_points.iter().filter(|p| p.z > -0.4) {
+    for (_, &point) in all_points.iter().filter(|(_, p)| p.z > -0.4) {
         let colour = 0x1010FF;
         let material = three::material::Phong {
             color: colour,
